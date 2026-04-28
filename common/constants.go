@@ -85,6 +85,8 @@ var SMTPAccount = ""
 var SMTPFrom = ""
 var SMTPToken = ""
 
+var IntegrationApiKey = ""
+
 var GitHubClientId = ""
 var GitHubClientSecret = ""
 var LinuxDOClientId = ""

@@ -22,6 +22,7 @@ const UserNameMaxLength = 20
 // Otherwise, the sensitive information will be saved on local storage in plain text!
 type User struct {
 	Id               int            `json:"id"`
+	ExternalId       *string        `json:"external_id,omitempty" gorm:"column:external_id;type:varchar(128);uniqueIndex"`
 	Username         string         `json:"username" gorm:"unique;index" validate:"max=20"`
 	Password         string         `json:"password" gorm:"not null;" validate:"min=8,max=20"`
 	OriginalPassword string         `json:"original_password" gorm:"-:all"` // this field is only for Password change verification, don't save it to database!
@@ -182,6 +183,20 @@ func CheckUserExistOrDeleted(username string, email string) (bool, error) {
 	}
 	// exist, return true, nil
 	return true, nil
+}
+
+func GetUserByExternalId(externalId string, selectAll bool) (*User, error) {
+	externalId = strings.TrimSpace(externalId)
+	if externalId == "" {
+		return nil, errors.New("external_id is empty")
+	}
+	user := User{}
+	query := DB.Where("external_id = ?", externalId)
+	if !selectAll {
+		query = query.Omit("password")
+	}
+	err := query.First(&user).Error
+	return &user, err
 }
 
 func GetMaxUserId() int {

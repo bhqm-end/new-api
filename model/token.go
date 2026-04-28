@@ -85,6 +85,20 @@ func GetAllUserTokens(userId int, startIdx int, num int) ([]*Token, error) {
 	return tokens, err
 }
 
+func GetUserTokensByGroup(userId int, group string) ([]*Token, error) {
+	if userId == 0 {
+		return nil, errors.New("userId is empty")
+	}
+	var tokens []*Token
+	query := DB.Where("user_id = ?", userId)
+	group = strings.TrimSpace(group)
+	if group != "" {
+		query = query.Where(&Token{Group: group})
+	}
+	err := query.Order("id desc").Find(&tokens).Error
+	return tokens, err
+}
+
 // sanitizeLikePattern 校验并清洗用户输入的 LIKE 搜索模式。
 // 规则：
 //  1. 转义 ! 和 _（使用 ! 作为 ESCAPE 字符，兼容 MySQL/PostgreSQL/SQLite）

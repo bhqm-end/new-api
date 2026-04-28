@@ -51,6 +51,15 @@ func SetApiRouter(router *gin.Engine) {
 		apiRouter.POST("/waffo/webhook", controller.WaffoWebhook)
 		//apiRouter.POST("/waffo-pancake/webhook", controller.WaffoPancakeWebhook)
 
+		integrationRoute := apiRouter.Group("/integration")
+		integrationRoute.Use(middleware.IntegrationAuth(), middleware.CriticalRateLimit())
+		{
+			integrationRoute.POST("/users", controller.CreateIntegrationUser)
+			integrationRoute.POST("/users/:user_id/tokens", controller.CreateIntegrationUserToken)
+			integrationRoute.GET("/users/:user_id/tokens", controller.GetIntegrationUserTokens)
+			integrationRoute.POST("/users/:user_id/redeem", controller.RedeemIntegrationUserCard)
+		}
+
 		// Universal secure verification routes
 		apiRouter.POST("/verify", middleware.UserAuth(), middleware.CriticalRateLimit(), controller.UniversalVerify)
 
